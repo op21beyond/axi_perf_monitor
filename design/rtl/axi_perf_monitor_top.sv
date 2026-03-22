@@ -1,4 +1,11 @@
-// Top: optional register slices upstream (toward masters) and downstream (toward slaves)
+//-----------------------------------------------------------------------------
+// axi_perf_monitor_top.sv
+//
+// Top-level: optional upstream/downstream AXI slices around axi_perf_monitor_core.
+// Slave-facing ports use up_*; master toward memory/interconnect use dn_*.
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module axi_perf_monitor_top #(

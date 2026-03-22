@@ -1,4 +1,11 @@
-// Minimal testbench — tie-offs only; extend with AXI master/slave BFMs
+//-----------------------------------------------------------------------------
+// tb_axi_perf_monitor.sv
+//
+// Minimal testbench: clock, reset, and port tie-offs for axi_perf_monitor_top.
+// Extend with AXI master/slave BFMs and directed/random stimulus as needed.
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module tb_axi_perf_monitor;

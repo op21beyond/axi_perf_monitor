@@ -1,4 +1,11 @@
-// Optional bind-in checks for this IP only (no up/down AXI protocol checking).
+//-----------------------------------------------------------------------------
+// axi_perf_monitor_sva.sv
+//
+// Optional assertions bound into the IP (e.g. internal FIFO index sanity). Does not
+// check full upstream/downstream AXI protocol. Enable with AXI_PERF_MONITOR_SVA.
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `ifdef AXI_PERF_MONITOR_SVA
 `timescale 1ns/1ps
 

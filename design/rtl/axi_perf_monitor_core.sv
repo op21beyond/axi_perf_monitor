@@ -1,5 +1,12 @@
-// AXI performance monitor — datapath + CSR + logging + throttle
-// Sample FIFO: raw bytes, latency sums/counts, period cycles/txns (no dividers).
+//-----------------------------------------------------------------------------
+// axi_perf_monitor_core.sv
+//
+// Core IP: APB CSR, transparent AXI pass-through, bandwidth/latency logging into
+// Even/Odd sample FIFOs, optional address-filtered throttle. Exposes raw sums and
+// counts (no hardware dividers).
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 import axi_perf_monitor_pkg::*;

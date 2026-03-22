@@ -1,4 +1,11 @@
-// Package: AXI performance monitor — shared types and helpers
+//-----------------------------------------------------------------------------
+// axi_perf_monitor_pkg.sv
+//
+// SystemVerilog package: burst byte helpers and address-in-range checks for the
+// AXI performance monitor RTL.
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `ifndef AXI_PERF_MONITOR_PKG_SV
 `define AXI_PERF_MONITOR_PKG_SV
 

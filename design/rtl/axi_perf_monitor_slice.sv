@@ -1,5 +1,12 @@
-// AXI4 combinational passthrough. For timing closure, replace this instance with a
-// vendor `axi_register_slice` (same port list) or extend with full skid buffers.
+//-----------------------------------------------------------------------------
+// axi_perf_monitor_slice.sv
+//
+// AXI4 register slice: combinational pass-through (optional pipeline parameter).
+// For timing closure, swap in a vendor axi_register_slice with the same port list
+// or extend with full skid buffers.
+//
+// Designed by Jongchul Shin, Coded by Cursor
+//-----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module axi_perf_monitor_slice #(
