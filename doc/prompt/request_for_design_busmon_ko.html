@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AXI Performance Monitor - Design Request</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AXI Performance Monitor - Design Request</h1>
+</header>
+<h1
+id="axi-performance-monitor-ip-soc-설계-의뢰서-design-request-specification">AXI
+Performance Monitor IP — SoC 설계 의뢰서 (Design Request
+Specification)</h1>
+<p><strong>문서 목적</strong>: 본 문서는 SoC IP 개발팀이
+Verilog/SystemVerilog 기반 <strong>AXI 성능 모니터 겸 대역폭 제어·주소
+보호 IP</strong>를 구현하기 위해 필요한 기능·동작·제약을 <strong>최초
+전달</strong> 기준으로 정의한다.<br />
+<strong>독자</strong>: SoC·IP 설계/검증/소프트웨어 담당자(본 IP를 처음
+수령하는 경우를 가정).</p>
+<p><strong>범위</strong>: 본 문서가 이 IP에 대한 <strong>기능·동작
+요구의 단일 규범(norms) 기준</strong>이다. <strong>레지스터 비트·주소,
+핀/포트 목록, 타이밍·전기 제약, SoC 연계 절차</strong>는 IP 공급자가
+<strong>동반 제공하는 자료</strong>에서 확정하되, 본 문서와 <strong>모순
+없이</strong> 작성한다.</p>
+<p><strong>단독 전달</strong>: 본 패키지(한글·영문 의뢰서 마크다운, 블록
+개요 그림)만으로 요구사항을 전달할 수 있게 작성하였으며, <strong>다른
+저장소의 마크다운이나 내부 문서를 읽을 필요는 없다.</strong></p>
+<h3 id="권장-전달-파일-구성">권장 전달 파일 구성</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>파일</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>request_for_design_busmon.md</code></td>
+<td>한글 본 사양(규범 텍스트·표).</td>
+</tr>
+<tr>
+<td><code>request_for_design_busmon_en.md</code></td>
+<td>동일 내용 영문 사양.</td>
+</tr>
+<tr>
+<td><code>busmon_architecture_overview.png</code></td>
+<td>§10 블록 개요; 마크다운과 <strong>동일 폴더</strong>에 둘 것(상대
+경로로 삽입).</td>
+</tr>
+</tbody>
+</table>
+<p>마크다운에서 Word 등으로 변환할 수 있다. §10.2의 Mermaid 도식은
+뷰어에 따라 표시되지 않을 수 있으므로, <strong>상세 동작·수치는 §4~§9
+본문과 표</strong>를 따른다.</p>
+<hr />
+<h2 id="필수-vs-설계자-재량-표기">0. 필수 vs 설계자 재량 표기</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>표기</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>필수(MUST)</strong></td>
+<td>본 문서에 명시된 대로 구현·검증해야 함.</td>
+</tr>
+<tr>
+<td><strong>권장(SHOULD)</strong></td>
+<td>일반적으로 그렇게 하는 것이 바람직하나, 동등 이상의 품질이면 대체
+가능.</td>
+</tr>
+<tr>
+<td><strong>재량(MAY)</strong></td>
+<td>구현 방식·마이크로아키텍처·세부 파라미터는 설계자 판단. 단,
+<strong>필수 동작·AXI 규약 준수</strong>는 깨지면 안 됨.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="설계-목표-필수">1. 설계 목표 (필수)</h2>
+<ul>
+<li>상용 양산 가능한 수준의 완성도로 <strong>AXI 성능 모니터
+IP</strong>를 제공한다.</li>
+<li><strong>대역폭/지연 로깅</strong>, <strong>대역폭 스로틀(여러
+threshold 모드)</strong>, <strong>외부 스로틀 제어(External throttle
+control)</strong>, <strong>주소 보호(Address Protection)</strong> 를
+하나의 IP에서 제어·상태 레지스터로 구성할 수 있어야 한다.</li>
+<li>고주파 동작을 고려한 파이프라인·타이밍 여유를 갖출 것.</li>
+</ul>
+<hr />
+<h2 id="인터페이스-필수">2. 인터페이스 (필수)</h2>
+<h3 id="axi">2.1 AXI</h3>
+<ol type="1">
+<li><strong>AXI Master Up / Master Down(또는 Slave Up / Master Down 등
+명명은 재량)</strong>
+<ul>
+<li>Upstream과 Downstream은 <strong>동일 데이터 폭</strong>,
+<strong>동일 클럭</strong>을 사용한다.<br />
+</li>
+</ul></li>
+<li>기본 데이터 폭은 <strong>256 bit</strong>(설계 파라미터로 변경
+가능은 <strong>재량</strong>, 기본값은 256).<br />
+</li>
+<li><strong>Optional Register Slice</strong>는 Up/Down 양측 또는 한쪽에
+삽입 가능하도록 <strong>파라미터</strong>로 선택 가능해야 한다.</li>
+</ol>
+<h3 id="제어상태-apb">2.2 제어·상태 — APB</h3>
+<ol type="1">
+<li>Control/Status는 <strong>APB 32 bit</strong> 슬레이브 인터페이스로
+접근한다.<br />
+</li>
+<li><code>pstrb</code>는 <strong>0xF 고정</strong> 가정 가능.<br />
+</li>
+<li>Master AXI와 <strong>동일 클럭</strong> 도메인.</li>
+</ol>
+<h3 id="인터럽트">2.3 인터럽트</h3>
+<ul>
+<li><strong>인터럽트 출력 1개</strong>(로깅 등 이벤트 공통 또는 마스킹
+후 단일 라인 — 소스·마스크 비트 배치는 §8 및 <strong>동반 제공되는 제어
+레지스터 정의</strong>에서 규정).</li>
+</ul>
+<h3 id="버스-외부-입력-external-throttle-control">2.4 버스 외부 입력 —
+External throttle control</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>AXI 버스 포트와 <strong>별도</strong>인 <strong>2 bit</strong> 입력
+포트 <strong><code>request_throttle[1:0]</code></strong> 를 둔다.<br />
+</li>
+<li>입력 값은 <strong>0~3</strong>만 유효한 조합으로 정의한다(불필요한
+비트 조합은 <strong>재량</strong>으로 무시하거나 0과 동일 처리 —
+레지스터/문서에 명시).<br />
+</li>
+<li>이 신호는 <strong>AXI와 동일 클럭</strong> 도메인으로 동작하는 것을
+<strong>권장</strong>한다. 비동기 도메인이면 <strong>재량</strong>으로
+동기화 단계를 두되, 메타스테이블리티 방지를 <strong>필수</strong>로
+고려한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>포트 방향 표기(<code>input</code> 등) 및 모듈 최상단 핀 이름
+접두어.</li>
+</ul>
+<hr />
+<h2 id="기능별-enable-disable-필수">3. 기능별 Enable / Disable
+(필수)</h2>
+<p>Control 레지스터에 <strong>기능 단위 enable/disable</strong> 필드가
+있어야 한다. 최소 분리 예시(이름·비트 배치는 <strong>재량</strong>):</p>
+<ul>
+<li>Bandwidth logging<br />
+</li>
+<li>Latency logging (단일 트랜잭션 / 멀티 트랜잭션 지연은 하위 enable
+또는 공통 period 내 통계 선택 — §5.2)<br />
+</li>
+<li>Bandwidth throttling<br />
+</li>
+<li><strong>External throttle control</strong>
+(<code>request_throttle</code> 입력 경로 — §6.3)<br />
+</li>
+<li>Address protection</li>
+</ul>
+<p>각 기능이 꺼졌을 때 <strong>불필요한 클록 토글 감소</strong> 등은
+<strong>권장</strong>.</p>
+<hr />
+<h2 id="트랜잭션-필터-필수">4. 트랜잭션 필터 (필수)</h2>
+<p>로깅·지연 측정·스로틀 <strong>적용 범위</strong> 판단에 공통으로
+사용한다. 필터는 <strong>논리 AND</strong>로 조합한다: 주소·ID·방향
+조건을 <strong>모두</strong> 만족하는 트랜잭션에만 해당 기능이
+적용된다(각 기능 enable이 켜진 경우).</p>
+<h3 id="주소-필터">4.1 주소 필터</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>Control 레지스터로 <strong>시작 주소 + 크기</strong>(또는 시작/끝)
+범위 내 트랜잭션만 추적하거나, <strong>전체 주소 공간 추적</strong>을
+선택할 수 있어야 한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>주소 비교 방식( 정렬 제약, 상위 비트 마스크 등 )은 구현에 맞게
+정의.</li>
+</ul>
+<h3 id="id-필터">4.2 ID 필터</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li><strong>AXI ID</strong>(ARID/AWID 폭은 AXI 파라미터에 따름)에 대해
+다음 모드를 레지스터로 선택 가능해야 한다.
+<ol type="1">
+<li><strong>특정 ID만 추적(화이트리스트)</strong> — 하나 이상의 ID 값
+매칭(매칭 항목 수·비트 폭은 <strong>디자인 파라미터</strong>로 상한
+정의).<br />
+</li>
+<li><strong>특정 ID 제외(블랙리스트)</strong> — 지정 ID는 제외.<br />
+</li>
+<li><strong>전체 ID 추적</strong>(필터 비활성과 동일 의미로 동작).</li>
+</ol></li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>화이트/블랙리스트 항목 수, 마스크·범위 비교 vs 완전 일치 목록.</li>
+</ul>
+<h3 id="direction-필터">4.3 DIRECTION 필터</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>다음 중 레지스터로 선택:
+<ul>
+<li><strong>Read만</strong><br />
+</li>
+<li><strong>Write만</strong><br />
+</li>
+<li><strong>Read + Write 모두</strong></li>
+</ul></li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>“Write”에 AW만 포함할지 AW+W 채널 범위 구분 등 세부는 AXI 표준에
+맞게 정의.</li>
+</ul>
+<h3 id="적용-범위-요약-필수">4.4 적용 범위 요약 (필수)</h3>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr>
+<th>기능</th>
+<th>필터 조합</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bandwidth logging</td>
+<td>주소 + ID + DIRECTION</td>
+</tr>
+<tr>
+<td>Latency logging (§5)</td>
+<td>동일</td>
+</tr>
+<tr>
+<td>Bandwidth throttling (§6)</td>
+<td>주소 + ID + DIRECTION (Latency logging과 동일 조합)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="performance-logging">5. Performance Logging</h2>
+<h3 id="bandwidth-logging">5.1 Bandwidth Logging</h3>
+<p><strong>요약(필수)</strong></p>
+<ol type="1">
+<li><strong>Period</strong>: 사이클 수 또는 트랜잭션 수(AW+AR 핸드셰이크
+등 정의는 레지스터 설명서에 명시) 중 선택. Enable 시 반복.<br />
+</li>
+<li><strong>측정</strong>: <code>AxSIZE × burst length</code> 등으로
+바이트 산출; Write/Read 각각 누적; Period 종료 시 FIFO 저장.<br />
+</li>
+<li><strong>FIFO</strong>: Depth는 parameter; <strong>Even/Odd</strong>
+두 뱅크; <strong>N</strong> period마다 저장 뱅크 전환(<code>N</code>은
+depth 미만, Control로 설정).<br />
+</li>
+<li><strong>인터럽트</strong>: N period마다 레벨 인터럽트 가능,
+interrupt enable로 마스크.<br />
+</li>
+<li><strong>상태</strong>: 현재 Even/Odd 쓰기 대상, 마지막 인터럽트가
+어느 FIFO 저장 이후인지.<br />
+</li>
+<li><strong>필터</strong>: §4 조합으로 카운트 대상 결정.</li>
+</ol>
+<p><strong>재량</strong></p>
+<ul>
+<li>FIFO 구현(메모리 타입), 메타데이터 필드.</li>
+</ul>
+<hr />
+<h3 id="latency-logging">5.2 Latency Logging</h3>
+<h4 id="period-및-평균-저장">5.2.1 Period 및 평균 저장</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li>Period는 Bandwidth logging과 <strong>동일 레지스터</strong>
+사용.<br />
+</li>
+<li><strong>단일 트랜잭션</strong> 관점의 지연은 Period마다
+<strong>평균</strong>만 저장: 누적 합 / 트랜잭션 수.<br />
+</li>
+<li><strong>Write latency</strong>: AW 핸드셰이크 완료 후 <strong>B 채널
+최초 수락</strong>까지 사이클.<br />
+</li>
+<li><strong>Read latency</strong>:
+<ul>
+<li>AR 이후 <strong>첫 RVALID</strong>까지<br />
+</li>
+<li>AR 이후 <strong>마지막 RLAST &amp; RVALID</strong>까지 (두 값 각각
+통계).<br />
+</li>
+</ul></li>
+<li>FIFO Even/Odd, N 주기 전환: Bandwidth와 동일 정책.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>내부 구조(예: ID별 대기 큐)는 구현에 맞게 선택한다.</li>
+</ul>
+<h4 id="read-write-multi-transaction-latency">5.2.2 Read / Write
+Multi-Transaction Latency</h4>
+<p><strong>목적</strong>: Outstanding 트랜잭션이 겹칠 때 <strong>“연속
+구간”의 종단간 지연</strong>과 <strong>누적 바이트</strong>를 로깅
+구조(Period/FIFO 정책)에 맞춰 저장한다.</p>
+<p><strong>필수 — Read 멀티 트랜잭션 레이턴시</strong></p>
+<ol type="1">
+<li><strong>구간 시작</strong>: 필터를 통과하는 Read 트랜잭션에 대해,
+<strong>현재 Outstanding Read 트랜잭션이 없을 때</strong>,
+<strong>ARVALID &amp; ARREADY</strong>가 성립한 시점에서
+<strong>레이턴시 카운터 시작</strong>.<br />
+</li>
+<li><strong>구간 종료</strong>: 해당 구간에 속하는 <strong>마지막 Read
+트랜잭션</strong>에 대해 <strong>RLAST &amp; RVALID &amp;
+RREADY</strong>가 성립한 시점에서 <strong>카운터 종료</strong>.<br />
+</li>
+<li><strong>저장</strong>: 종료 시(또는 Period 경계에서의 집계 방식 —
+아래 §5.2.3) <strong>바이트 수</strong>와 <strong>Period(사이클)
+수</strong>를 <strong>저장 방식(FIFO / 평균 등)에 따라</strong>
+§5.1·§5.2.1과 동일한 <strong>Even/Odd FIFO 체계</strong>에 맞게 저장
+가능해야 한다.<br />
+</li>
+<li><strong>Outstanding이 이미 있는 상태</strong>에서 새 Read가
+시작되면: <strong>이미 동작 중인 멀티 트랜잭션 레이턴시 카운터는
+리셋하지 않고</strong>, <strong>바이트 수만 누적 증가</strong>한다(동일
+구간으로 간주).</li>
+</ol>
+<p><strong>필수 — Write 멀티 트랜잭션 레이턴시</strong></p>
+<ul>
+<li>Read와 <strong>동일한 정책</strong>으로 정의한다. 구체적으로는 Write
+경로에서 “구간 시작”은 Outstanding Write가 없을 때의 <strong>AW (또는
+규약에 맞는 첫 유효 요청 시점)</strong>, “구간 종료”는 해당 구간 마지막
+Write에 대한 <strong>최종 응답(BVALID &amp; BREADY)</strong> 으로
+한다.<br />
+</li>
+<li>구간 중 추가 Write는 <strong>카운터 리셋 없이 바이트만
+가산</strong>.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>Write 멀티 구간의 바이트 산출이 AW 기준만인지 AW+W 데이터까지
+포함하는지의 세부(단, 문서 전체의 바이트 정의와
+<strong>일관</strong>되어야 함).<br />
+</li>
+<li>멀티 트랜잭션 통계를 Period <strong>평균</strong>으로 넣을지,
+<strong>샘플 단위 FIFO</strong>에 넣을지 — 레지스터 맵에 명시.</li>
+</ul>
+<h4 id="멀티-트랜잭션-통계와-period의-관계-필수일부-재량">5.2.3 멀티
+트랜잭션 통계와 Period의 관계 (필수·일부 재량)</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li>단일/멀티 트랜잭션 지연 통계는 모두 <strong>§4 필터</strong>를
+통과한 트랜잭션만 포함.<br />
+</li>
+<li>Bandwidth/Latency와 <strong>동일한 Period 타임베이스</strong>를
+사용할 수 있어야 한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>한 Period 안에서 여러 멀티 구간이 완료될 때
+<strong>평균·합·최대</strong> 중 무엇을 저장할지는 성능 지표 정의에 따라
+레지스터 맵에 확정.</li>
+</ul>
+<hr />
+<h2 id="bandwidth-throttling">6. Bandwidth Throttling</h2>
+<h3 id="공통">6.1 공통</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>로깅용 Period와 <strong>별도</strong>로
+<code>period_throttle</code>(명칭 재량) 등 주기 레지스터를 둔다.<br />
+</li>
+<li>스로틀 대상 구간의 바이트 집계 방식은 로깅과 <strong>동일한 바이트
+산출 규칙</strong>을 따른다.<br />
+</li>
+<li><strong>적용 범위</strong>: §4 <strong>주소 + ID +
+DIRECTION</strong> 필터를 만족하는 트랜잭션에만 스로틀 동작.<br />
+</li>
+<li>지연 삽입으로 대역폭을 제한한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>슬라이딩 윈도우 vs 고정 윈도우 등 집계 구현.</li>
+</ul>
+<hr />
+<h3 id="threshold-동작-방식-옵션-필수">6.2 Threshold 동작 방식 옵션
+(필수)</h3>
+<p>레지스터로 <strong>동적 선택</strong> 가능해야 한다.</p>
+<h4 id="static-threshold">6.2.1 Static threshold</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li><code>period_throttle</code> 주기마다 집계한 바이트 합이
+<strong>설정 threshold</strong>를 초과하면, AW/AR(및 §6.4) 채널에서
+<strong>ready 또는 상류 valid에 대한 수락 타이밍</strong>을 지연하여
+대역폭을 낮춘다.<br />
+</li>
+<li>AW와 AR에 서로 <strong>다른 delay 값</strong>을 설정 가능.</li>
+</ul>
+<h4 id="credit-방식-threshold">6.2.2 Credit 방식 threshold</h4>
+<p><strong>필수 개념</strong></p>
+<ul>
+<li><strong>credit_period</strong>: 로깅/스태틱 period와
+<strong>독립</strong>인 주기. 레지스터로 설정.<br />
+</li>
+<li>매 <code>credit_period</code>마다
+<strong>number_of_credit</strong>(레지스터 동적 설정)만큼 크레딧이
+<strong>추가</strong>되고 <strong>누적</strong>된다.<br />
+</li>
+<li>누적값은 <strong>상한</strong>(레지스터 또는 파라미터로 동적 설정
+가능)을 넘지 않도록 클램프.<br />
+</li>
+<li>트랜잭션 <strong>요청이 채널에서 수락될 때</strong>(AXI에서
+<strong>해당 채널의 VALID &amp; READY</strong> 성립 시점으로 정의;
+레지스터 문서에 채널별로 명시) 크레딧을 차감한다.<br />
+</li>
+<li>차감량 = <strong>요청 바이트</strong>를
+<code>credit_divider</code>만큼 <strong>논리 시프트(우측)</strong> 하여
+얻는 값 — 즉 <strong>bytes / 2^credit_divider</strong> 의 정수
+나눗셈(바닥, floor)에 상응하는 정수(bytes는 해당 트랜잭션 전송 바이트
+수).<br />
+</li>
+<li>차감 결과가 <strong>0 미만이 되지 않도록</strong> 한다(부족하면
+§6.2.3).<br />
+</li>
+<li><strong>Read용 크레딧</strong>과 <strong>Write용 크레딧</strong>을
+<strong>분리</strong>하여 유지·차감한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>크레딧 단위 정수 비트 폭, 동시에 여러 트랜잭션 차감 순서.</li>
+</ul>
+<h4 id="크레딧-부족-시-지연-필수">6.2.3 크레딧 부족 시 지연 (필수)</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li>차감 가능한 크레딧이 없으면 <strong>트랜잭션 수락을
+지연</strong>시켜 대역폭을 제한한다.<br />
+</li>
+<li>Read 경로와 Write 경로에 대해 <strong>독립적으로</strong>
+적용(분리된 크레딧과 일치).</li>
+</ul>
+<hr />
+<h3 id="external-throttle-control">6.3 External throttle control</h3>
+<p>AXI 버스가 아닌 <strong>별도 핀</strong>으로 들어오는 스로틀 지시를
+받아, 내부 threshold 스로틀(§6.2)과 <strong>독립인 지연
+레지스터</strong>로 <strong>요청(request) 경로</strong>에 삽입 지연을
+가한다.</p>
+<h4 id="입력-및-의미-필수">6.3.1 입력 및 의미 (필수)</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li>포트 <strong><code>request_throttle[1:0]</code></strong>
+(§2.4).<br />
+</li>
+<li><strong><code>request_throttle == 0</code></strong>: 이 기능이
+enable된 경우에도 <strong>이 입력에 의한 추가 지연은 없음</strong>(no
+throttle by this selector).<br />
+</li>
+<li><strong><code>request_throttle == 1</code>, <code>2</code>,
+<code>3</code></strong>: 각각 <strong>서로 다른 지연량</strong>이
+<strong>request 신호</strong> 수락 경로에 적용된다. 지연량은
+<strong>레지스터로 설정</strong>하며, <strong>§6.2·§6.4에서 사용하는
+AW/AR/W delay 레지스터·크레딧 관련 설정과는 별개의 레지스터</strong>여야
+한다(필수). 즉 <em>외부 선택값 1·2·3에 대응하는 delay 세트</em>는
+<strong>전용 레지스터 3개</strong>(또는 동등한 분리된 저장소).<br />
+</li>
+<li>본 기능의 <strong>동작 enable/disable</strong>은 <strong>APB Control
+레지스터로 동적 설정</strong> 가능해야 한다(필수). enable이 꺼지면
+<code>request_throttle</code> 입력은 <strong>무시</strong>되어도
+된다(SHOULD: 문서화).</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>“request 신호”의 구체적 범위: 일반적으로 <strong>AR·AW 주소
+단계</strong>의 수락(VALID/READY) 타이밍에 삽입되는 지연을 의미한다.
+<strong>W·R 응답</strong>까지 확장할지는 <strong>재량</strong>이나, 적용
+채널은 레지스터 맵에 <strong>명시</strong>할 것.<br />
+</li>
+<li>값 1·2·3 각각에 지연을 <strong>한 레지스터에 인코딩</strong>할지
+<strong>3개 독립 레지스터</strong>로 둘지는 <strong>재량</strong>.</li>
+</ul>
+<h4 id="내부-bandwidth-throttling과의-관계-필수재량">6.3.2 내부
+Bandwidth throttling과의 관계 (필수·재량)</h4>
+<p><strong>필수</strong></p>
+<ul>
+<li>External throttle과 §6.2 내부 스로틀이 <strong>동시에</strong>
+활성일 때, 합성 지연이 AXI <strong>프로토콜·데드락 없이</strong>
+동작해야 한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>지연의 <strong>합산·최대값 선택·우선순위</strong> 등 결합 규칙은
+구현·레지스터 맵에 명시.</li>
+</ul>
+<h4 id="적용-범위-재량">6.3.3 적용 범위 (재량)</h4>
+<ul>
+<li>§4 주소/ID/DIRECTION 필터를 외부 스로틀에도 적용할지 여부는
+<strong>재량</strong>. 적용 시에는 레지스터로 선택 가능하게 할지는
+<strong>재량</strong>. 미명시 시 <strong>전역(모든 트랜잭션)</strong> 에
+적용하는 구현도 허용된다.</li>
+</ul>
+<hr />
+<h3 id="write-경로-wready-지연">6.4 Write 경로 — WREADY 지연</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>스로틀이 Write 데이터 경로에 미치는 영향으로, <strong>WREADY
+지연</strong>을 추가할 수 있어야 한다.<br />
+</li>
+<li>지연 <strong>크기(사이클 또는 유사)</strong> 는 <strong>별도
+레지스터</strong>로 설정 가능.<br />
+</li>
+<li>Static/Credit 모드와의 조합 규칙(예: 크레딧 부족 시에만 WREADY 가산
+등)은 <strong>레지스터 맵에 명시</strong>하고, AXI <strong>W 채널 규약
+위반 없이</strong> 동작해야 한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>AW 지연과 W 지연의 우선순위·합산 방식.</li>
+</ul>
+<hr />
+<h3 id="모드-선택-및-레지스터-필수">6.5 모드 선택 및 레지스터
+(필수)</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li>§6.2.1과 §6.2.2 중 <strong>한 모드</strong>를 런타임에 선택.<br />
+</li>
+<li>선택에 따라 의미 없는 레지스터는 무시되어도 됨(SHOULD: 문서화).</li>
+</ul>
+<hr />
+<h2 id="address-protection">7. Address Protection</h2>
+<p>Bandwidth throttle·latency log와 <strong>별도로 enable
+가능한</strong> 기능으로 둔다.</p>
+<h3 id="보호-영역">7.1 보호 영역</h3>
+<p><strong>필수</strong></p>
+<ul>
+<li><strong>(base address, end address)</strong> 쌍으로 허용 영역을
+정의한다. 쌍의 <strong>최대 개수</strong>는 <strong>디자인
+파라미터</strong>.<br />
+</li>
+<li>각 쌍마다 <strong>유효(valid)</strong> 를 동적으로 켜고 끌 수 있어야
+한다.<br />
+</li>
+<li>트랜잭션 주소가 <strong>어느 유효한 쌍에도 속하지 않으면</strong>
+“보호 위반”으로 처리한다(주소 비교는 ARADDR/AWADDR 기준; 세부
+<strong>재량</strong>).</li>
+</ul>
+<h3 id="graceful-ignore-동작">7.2 Graceful ignore 동작</h3>
+<p><strong>필수 — Read</strong></p>
+<ul>
+<li>보호 위반 Read 요청에 대해 <strong>에러 로그 레지스터</strong>에
+<strong>AXID</strong>, <strong>ARADDR</strong>를 남긴다.<br />
+</li>
+<li><strong>AXI 프로토콜 타이밍이 깨지지 않도록</strong> 하류·상류와의
+핸드셰이크를 완결해야 한다.<br />
+</li>
+<li>비보호 주소로의 실제 접근을 어떻게 막을지(예: 하류로 AR 미전달 +
+로컬 에러 응답 생성 등)는 <strong>재량</strong>이나, <strong>데드락
+없음·READY/VALID 규약 준수</strong>는 <strong>필수</strong>.</li>
+</ul>
+<p><strong>필수 — Write</strong></p>
+<ul>
+<li>보호 위반 Write에 대해 에러 로그에 필요한 정보를 남긴다(최소
+<strong>AWADDR</strong>, <strong>AWID</strong> 권장).<br />
+</li>
+<li>하류로 나가는 Write 데이터 경로에서 <strong>WSTRB를 전부
+0</strong>으로 만들어 전달한다(사이클 정렬·패킹은 <strong>재량</strong>,
+<strong>프로토콜 유지 필수</strong>).</li>
+</ul>
+<h3 id="에러-로그-레지스터-형식-필수">7.3 에러 로그 레지스터 형식
+(필수)</h3>
+<p>각 에러 소스(또는 공통) 레지스터에 다음 의미를 갖는 필드를 둔다.</p>
+<ul>
+<li><strong>valid</strong>: 에러 이벤트 표시.<br />
+</li>
+<li><strong>multi</strong>: 배타적으로 다음을 표현:
+<ul>
+<li><code>valid=1</code>, <code>multi=0</code>: <strong>1회</strong>
+발생.<br />
+</li>
+<li><code>valid=1</code>, <code>multi=N</code> (N&gt;0):
+<strong>N회</strong> 발생 누적(단, <strong>multi 비트 폭으로 표현 가능한
+상한</strong>까지만 증가; 초과 시 <strong>포화</strong> 또는
+<strong>오버플로 플래그</strong> 중 하나는 레지스터 맵에 명시 —
+<strong>재량</strong> 중 하나 선택 후 문서화).</li>
+</ul></li>
+</ul>
+<p><strong>필수</strong></p>
+<ul>
+<li>에러 로그는 이 IP 내부의 <strong>APB CSR 슬레이브</strong> 접근으로
+<strong>Write-one-to-clear(W1C)</strong> 하여 클리어 가능해야 한다.</li>
+</ul>
+<p><strong>재량</strong></p>
+<ul>
+<li>Read/Write 에러를 분리한 레지스터 파일 vs 통합.</li>
+</ul>
+<hr />
+<h2 id="인터럽트상태-필수-요약">8. 인터럽트·상태 (필수 요약)</h2>
+<ul>
+<li>인터럽트 <strong>1개</strong> 라인.<br />
+</li>
+<li>로깅 FIFO 이벤트, address protection 에러 등은 <strong>마스크
+레지스터</strong>로 묶을 수 있음(<strong>재량</strong>, 단 요구 기능은
+소프트웨어에서 구별 가능해야 함).</li>
+</ul>
+<hr />
+<h2 id="검증-필수">9. 검증 (필수)</h2>
+<ul>
+<li>충분한 <strong>assertion(SVA 등)</strong> 으로 AXI 규약·본 문서의
+카운터 경계 조건을 검증한다.</li>
+</ul>
+<hr />
+<h2 id="구조-개요도">10. 구조 개요도</h2>
+<h3 id="블록-개요">10.1 블록 개요</h3>
+<figure>
+<img src="busmon_architecture_overview.png"
+alt="AXI Performance Monitor conceptual blocks" />
+<figcaption aria-hidden="true">AXI Performance Monitor conceptual
+blocks</figcaption>
+</figure>
+<h3 id="필터-기능-적용-참고-mermaid">10.2 필터 → 기능 적용 (참고
+Mermaid)</h3>
+<pre class="mermaid"><code>flowchart LR
+  subgraph filt [Filter stage]
+    A[Address]
+    I[ID mode]
+    D[Direction]
+  end
+  filt --&gt; BW[Bandwidth log]
+  filt --&gt; LAT[Latency incl multi-tx]
+  filt --&gt; TH[Throttle static or credit]
+  XTH[External request_throttle] --&gt; TH
+  filt --&gt; AP[Address protection]</code></pre>
+<hr />
+<h2 id="구현-산출물-권장">11. 구현 산출물 (권장)</h2>
+<p>IP 공급자는 구현과 함께 다음을 제공하는 것이
+<strong>권장</strong>된다(디렉터리 구조·이름은
+<strong>재량</strong>).</p>
+<ul>
+<li><strong>RTL 소스</strong>: 합성·시뮬레이션 가능한
+Verilog/SystemVerilog.<br />
+</li>
+<li><strong>사용자 문서</strong>: 본 의뢰서와 일치하는 <strong>제어
+레지스터 설명</strong>(비트 의미, 주소, 리셋 값), 클럭/리셋·파라미터
+설명.<br />
+</li>
+<li><strong>검증 자료</strong>: SVA 등 assertion, 테스트플랜 또는 검증
+요약.</li>
+</ul>
+<hr />
+<h2 id="부록-a.-용어약어axi-채널-요약">부록 A. 용어·약어·AXI 채널
+요약</h2>
+<p>본 부록은 <strong>이해를 돕기 위한 요약</strong>이며, AXI 세부 규약은
+<strong>AMBA AXI 표준</strong>을 따른다.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>용어</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Upstream / Downstream</strong></td>
+<td>트래픽이 흐르는 방향 기준으로, 모니터의 한쪽은 상류 마스터/슬레이브,
+반대쪽은 하류. 본 문서의 “Master Up / Master Down” 명명과 대응한다.</td>
+</tr>
+<tr>
+<td><strong>AR / AW / R / W / B</strong></td>
+<td>각각 Read 주소, Write 주소, Read 데이터, Write 데이터, Write 응답
+채널.</td>
+</tr>
+<tr>
+<td><strong>Outstanding</strong></td>
+<td>이전 트랜잭션의 응답이 완료되기 전에 다음 주소·데이터 단계가 진행
+중인 상태. 본 문서 §5.2.2의 “멀티 트랜잭션 구간” 판별에 사용한다.</td>
+</tr>
+<tr>
+<td><strong>APB</strong></td>
+<td>저속 구성용 버스. 본 IP는 <strong>32bit APB 슬레이브</strong>로
+CSR에 접근한다고 가정한다.</td>
+</tr>
+<tr>
+<td><strong>CSR</strong></td>
+<td>Control/Status Register, 설정·통계·에러 로그 등.</td>
+</tr>
+<tr>
+<td><strong>Even/Odd FIFO</strong></td>
+<td>동일한 주기적 로깅 데이터를 두 개의 저장 뱅크(Even/Odd)로 번갈아
+기록하여, 소프트웨어가 한 뱅크를 읽는 동안 다른 뱅크에 기록을 이어 갈 수
+있게 하는 방식.</td>
+</tr>
+<tr>
+<td><strong>W1C</strong></td>
+<td>Write 1 to Clear; 해당 비트에 1을 쓰면 플래그가 클리어되는 레지스터
+동작.</td>
+</tr>
+<tr>
+<td><strong>SVA</strong></td>
+<td>SystemVerilog Assertions.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>바이트 산출</strong>: 문서의 “AxSIZE × burst length” 등은 AXI
+<strong>AWSIZE/ARSIZE</strong> 및 <strong>AWLEN/ARLEN</strong> 등으로
+결정되는 <strong>트랜잭션당 전송 바이트</strong>를 의미하며, 구체적
+산식은 구현 시 AXI 규격과 일치시켜 레지스터 문서에 명시하면 된다.</p>
+<hr />
+<p><strong>동반 문서</strong>: 레지스터 맵·핀 목록·타이밍은 IP 공급자가
+별도 자료로 제공하며, 본 의뢰서의 기능 요구를 충족하도록 기술한다.</p>
+</body>
+</html>

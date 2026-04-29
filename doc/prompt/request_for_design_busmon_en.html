@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AXI Performance Monitor - Design Request</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AXI Performance Monitor - Design Request</h1>
+</header>
+<h1 id="axi-performance-monitor-ip-design-request-specification">AXI
+Performance Monitor IP — Design Request Specification</h1>
+<p><strong>Purpose</strong>: This document defines the functional
+behavior, operating rules, and constraints for implementing an
+<strong>AXI performance monitor with bandwidth control and address
+protection</strong> in Verilog/SystemVerilog, for <strong>first
+delivery</strong> to the SoC IP team.<br />
+<strong>Audience</strong>: SoC and IP design, verification, and software
+engineers (assumes first receipt of this IP).</p>
+<p><strong>Scope</strong>: This document is the <strong>single normative
+baseline</strong> for functional and behavioral requirements of this IP.
+<strong>Register bitfields and addresses, pin/port lists,
+timing/electrical constraints, and SoC integration procedures</strong>
+are documented in <strong>companion material supplied by the IP
+provider</strong>, which MUST remain <strong>consistent</strong> with
+this specification.</p>
+<p><strong>Standalone delivery</strong>: This package (Korean and
+English markdown plus the block-diagram image) is sufficient to convey
+the requirements; <strong>no other repository markdown or internal
+documents need to be read.</strong></p>
+<h3 id="recommended-delivery-bundle">Recommended delivery bundle</h3>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>request_for_design_busmon.md</code></td>
+<td>Korean specification (normative prose and tables).</td>
+</tr>
+<tr>
+<td><code>request_for_design_busmon_en.md</code></td>
+<td>English specification of the same content.</td>
+</tr>
+<tr>
+<td><code>busmon_architecture_overview.png</code></td>
+<td>§10 overview figure; keep <strong>in the same folder</strong> as the
+markdown (relative image link).</td>
+</tr>
+</tbody>
+</table>
+<p>You MAY generate Word/PDF from markdown. The Mermaid diagram in §10.2
+may not render in all viewers; <strong>§§4–9 and tables are
+normative.</strong></p>
+<hr />
+<h2 id="notation-mandatory-vs-designer-discretion">0. Notation:
+Mandatory vs Designer Discretion</h2>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MUST</strong></td>
+<td>Implement and verify as stated in this document.</td>
+</tr>
+<tr>
+<td><strong>SHOULD</strong></td>
+<td>Preferred practice; may be replaced if quality is equivalent or
+better.</td>
+</tr>
+<tr>
+<td><strong>MAY</strong></td>
+<td>Microarchitecture, implementation style, and detailed parameters are
+at designer discretion, provided <strong>required behavior and AXI
+protocol compliance</strong> are preserved.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="design-goals-must">1. Design Goals (MUST)</h2>
+<ul>
+<li>Deliver an <strong>AXI performance monitor IP</strong> suitable for
+production-quality use.</li>
+<li><strong>Bandwidth/latency logging</strong>, <strong>bandwidth
+throttling (multiple threshold modes)</strong>, <strong>external
+throttle control</strong>, and <strong>address protection</strong> MUST
+be controllable and observable via registers within one IP.</li>
+<li>Provide pipeline and timing margin appropriate for high-frequency
+operation.</li>
+</ul>
+<hr />
+<h2 id="interfaces-must">2. Interfaces (MUST)</h2>
+<h3 id="axi">2.1 AXI</h3>
+<ol type="1">
+<li><strong>AXI Master Up / Master Down</strong> (or Slave Up / Master
+Down naming <strong>MAY</strong> vary).
+<ul>
+<li>Upstream and downstream use the <strong>same data width</strong> and
+<strong>same clock</strong>.<br />
+</li>
+</ul></li>
+<li>Default data width is <strong>256 bit</strong> (other defaults
+<strong>MAY</strong> use parameters; 256 is the default).<br />
+</li>
+<li><strong>Optional register slices</strong> on Up and/or Down MUST be
+selectable via <strong>parameters</strong>.</li>
+</ol>
+<h3 id="control-status-apb">2.2 Control / Status — APB</h3>
+<ol type="1">
+<li>Control/status registers are accessed through an <strong>APB
+32-bit</strong> slave interface.<br />
+</li>
+<li><code>pstrb</code> MAY be assumed <strong>fixed to
+0xF</strong>.<br />
+</li>
+<li>Same clock domain as the AXI master interface.</li>
+</ol>
+<h3 id="interrupt">2.3 Interrupt</h3>
+<ul>
+<li><strong>One interrupt output</strong> (shared across logging events
+or masked into one line — sources and mask bits are defined in §8 and in
+the <strong>companion register definition</strong> for this IP).</li>
+</ul>
+<h3 id="off-bus-input-external-throttle-control">2.4 Off-bus Input —
+External Throttle Control</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Provide a <strong>2-bit</strong> input port
+<strong><code>request_throttle[1:0]</code></strong> separate from AXI
+bus ports.<br />
+</li>
+<li>Define legal encodings as <strong>0 through 3</strong> (treatment of
+unused encodings is <strong>MAY</strong> — document as ignore or same as
+0).<br />
+</li>
+<li><strong>SHOULD</strong> operate in the <strong>same clock
+domain</strong> as AXI. If asynchronous, <strong>MAY</strong> add
+synchronizers; <strong>MUST</strong> consider metastability.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Port naming and module-level pin prefixes.</li>
+</ul>
+<hr />
+<h2 id="per-feature-enable-disable-must">3. Per-Feature Enable / Disable
+(MUST)</h2>
+<p>Control registers MUST provide <strong>per-feature
+enable/disable</strong> fields. Example split (field names and bit
+positions <strong>MAY</strong> vary):</p>
+<ul>
+<li>Bandwidth logging<br />
+</li>
+<li>Latency logging (single-tx / multi-tx latency via sub-enables or
+combined statistics in period — §5.2)<br />
+</li>
+<li>Bandwidth throttling<br />
+</li>
+<li><strong>External throttle control</strong>
+(<code>request_throttle</code> path — §6.3)<br />
+</li>
+<li>Address protection</li>
+</ul>
+<p><strong>SHOULD</strong> reduce unnecessary clock toggles when
+features are off.</p>
+<hr />
+<h2 id="transaction-filters-must">4. Transaction Filters (MUST)</h2>
+<p>Used consistently for logging, latency measurement, and
+<strong>throttle scope</strong>. Filters are combined with
+<strong>logical AND</strong>: a transaction is included only if
+<strong>all</strong> of address, ID, and direction conditions match
+(when the relevant feature is enabled).</p>
+<h3 id="address-filter">4.1 Address Filter</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Through control registers, allow monitoring only transactions in a
+<strong>start address + size</strong> (or start/end) range, or
+<strong>full address space</strong> tracking.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Address compare implementation (alignment rules, upper-bit masks,
+etc.).</li>
+</ul>
+<h3 id="id-filter">4.2 ID Filter</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Support these modes for <strong>AXI ID</strong> (ARID/AWID width per
+AXI parameters), selectable by register:
+<ol type="1">
+<li><strong>Whitelist</strong> — match one or more ID values (count and
+width upper bounds are <strong>design parameters</strong>).<br />
+</li>
+<li><strong>Blacklist</strong> — exclude listed IDs.<br />
+</li>
+<li><strong>All IDs</strong> (same effect as ID filter off).</li>
+</ol></li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Number of whitelist/blacklist entries; mask/range vs exact match
+lists.</li>
+</ul>
+<h3 id="direction-filter">4.3 Direction Filter</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Register-selectable:
+<ul>
+<li><strong>Read only</strong><br />
+</li>
+<li><strong>Write only</strong><br />
+</li>
+<li><strong>Read and Write</strong></li>
+</ul></li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Whether “Write” covers AW only vs AW+W channels per AXI rules.</li>
+</ul>
+<h3 id="applicability-summary-must">4.4 Applicability Summary
+(MUST)</h3>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Filter combination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bandwidth logging</td>
+<td>Address + ID + DIRECTION</td>
+</tr>
+<tr>
+<td>Latency logging (§5)</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Bandwidth throttling (§6)</td>
+<td>Address + ID + DIRECTION (same combination as latency logging)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="performance-logging">5. Performance Logging</h2>
+<h3 id="bandwidth-logging">5.1 Bandwidth Logging</h3>
+<p><strong>Summary (MUST)</strong></p>
+<ol type="1">
+<li><strong>Period</strong>: Select cycle count or transaction count
+(AW+AR handshake definition in register documentation). Repeats while
+enabled.<br />
+</li>
+<li><strong>Measurement</strong>: Derive bytes from
+<code>AxSIZE × burst length</code>, etc.; accumulate Write and Read
+separately; push to FIFO on period end.<br />
+</li>
+<li><strong>FIFO</strong>: Depth is a parameter;
+<strong>Even/Odd</strong> banks; switch storage bank every
+<strong>N</strong> periods (<code>N</code> &lt; depth, set by control
+register).<br />
+</li>
+<li><strong>Interrupt</strong>: Optional level interrupt every N
+periods; mask via interrupt enable.<br />
+</li>
+<li><strong>Status</strong>: Current Even/Odd write target; which FIFO
+bank was written before the last interrupt.<br />
+</li>
+<li><strong>Filters</strong>: Count eligibility per §4.</li>
+</ol>
+<p><strong>MAY</strong></p>
+<ul>
+<li>FIFO implementation (memory type), metadata fields.</li>
+</ul>
+<hr />
+<h3 id="latency-logging">5.2 Latency Logging</h3>
+<h4 id="period-and-average-storage">5.2.1 Period and Average
+Storage</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Use the <strong>same period registers</strong> as bandwidth
+logging.<br />
+</li>
+<li><strong>Single-transaction</strong> latency: store
+<strong>per-period averages</strong> only (sum / transaction
+count).<br />
+</li>
+<li><strong>Write latency</strong>: cycles from completed AW handshake
+until first <strong>B</strong> acceptance.<br />
+</li>
+<li><strong>Read latency</strong>:
+<ul>
+<li>From AR until first <strong>RVALID</strong><br />
+</li>
+<li>From AR until last <strong>RLAST &amp; RVALID</strong> (both
+statistics separately).<br />
+</li>
+</ul></li>
+<li>Even/Odd FIFO and N-period switching: same policy as bandwidth
+logging.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Internal structures (e.g. per-ID queues) as appropriate for the
+implementation.</li>
+</ul>
+<h4 id="read-write-multi-transaction-latency">5.2.2 Read / Write
+Multi-Transaction Latency</h4>
+<p><strong>Goal</strong>: When outstanding transactions overlap, store
+<strong>end-to-end delay of a “burst segment”</strong> and
+<strong>accumulated bytes</strong> consistent with the Period/FIFO
+policy.</p>
+<p><strong>MUST — Read multi-transaction latency</strong></p>
+<ol type="1">
+<li><strong>Segment start</strong>: For a filtered Read, when <strong>no
+outstanding Read</strong> exists, start the latency counter when
+<strong>ARVALID &amp; ARREADY</strong> complete.<br />
+</li>
+<li><strong>Segment end</strong>: For the <strong>last Read
+transaction</strong> of that segment, stop when <strong>RLAST &amp;
+RVALID &amp; RREADY</strong> complete.<br />
+</li>
+<li><strong>Storage</strong>: On completion (or per §5.2.3 at period
+boundaries), store <strong>byte count</strong> and <strong>period (cycle
+count)</strong> per the chosen storage mode (FIFO / average, etc.) using
+the same <strong>Even/Odd FIFO scheme</strong> as §5.1 and §5.2.1.<br />
+</li>
+<li>If <strong>outstanding Reads already exist</strong> when a new Read
+starts: <strong>do not reset</strong> the multi-transaction latency
+counter; <strong>only add bytes</strong> (same segment).</li>
+</ol>
+<p><strong>MUST — Write multi-transaction latency</strong></p>
+<ul>
+<li>Same policy as Read. <strong>Segment start</strong>: first valid
+request when no outstanding Write (typically <strong>AW</strong> or
+first valid per protocol). <strong>Segment end</strong>: <strong>BVALID
+&amp; BREADY</strong> for the last Write of the segment.<br />
+</li>
+<li>Additional Writes in the segment add bytes <strong>without
+resetting</strong> the counter.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Byte accounting for Write multi segments (AW-only vs AW+W data) —
+must stay <strong>consistent</strong> with document-wide byte
+definitions.<br />
+</li>
+<li>Whether multi-transaction stats go into period
+<strong>averages</strong> or <strong>per-sample FIFO</strong> — specify
+in register map.</li>
+</ul>
+<h4 id="multi-transaction-statistics-vs-period-must-partial-may">5.2.3
+Multi-Transaction Statistics vs Period (MUST / partial MAY)</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Single- and multi-transaction latency stats include only
+transactions passing <strong>§4 filters</strong>.<br />
+</li>
+<li><strong>MAY</strong> share the same period timebase as
+bandwidth/latency logging.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>If multiple multi-transaction segments complete in one period,
+whether to store <strong>average, sum, or max</strong> — define in
+register map.</li>
+</ul>
+<hr />
+<h2 id="bandwidth-throttling">6. Bandwidth Throttling</h2>
+<h3 id="common">6.1 Common</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Provide a throttle period register separate from logging period
+(<code>period_throttle</code>, naming <strong>MAY</strong> vary).<br />
+</li>
+<li>Byte accounting for throttling uses the <strong>same byte
+rules</strong> as logging.<br />
+</li>
+<li><strong>Scope</strong>: Throttling applies only to transactions
+satisfying §4 <strong>address + ID + DIRECTION</strong>.<br />
+</li>
+<li>Insert delay to limit bandwidth.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Sliding vs fixed aggregation windows.</li>
+</ul>
+<hr />
+<h3 id="threshold-mode-options-must">6.2 Threshold Mode Options
+(MUST)</h3>
+<p>Selectable <strong>dynamically</strong> by register.</p>
+<h4 id="static-threshold">6.2.1 Static Threshold</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Each <code>period_throttle</code> window, if accumulated bytes
+exceed the configured <strong>threshold</strong>, insert delay on AW/AR
+(and §6.4) <strong>acceptance timing</strong> to reduce bandwidth.<br />
+</li>
+<li><strong>Different delay values</strong> may be set for AW vs
+AR.</li>
+</ul>
+<h4 id="credit-based-threshold">6.2.2 Credit-Based Threshold</h4>
+<p><strong>MUST — Concepts</strong></p>
+<ul>
+<li><strong>credit_period</strong>: Independent of logging/static
+throttle period; register-programmable.<br />
+</li>
+<li>Each <strong>credit_period</strong>, add
+<strong>number_of_credit</strong> (register) to the
+<strong>accumulated</strong> credit pool.<br />
+</li>
+<li><strong>Clamp</strong> accumulation to a <strong>maximum</strong>
+(register or parameter).<br />
+</li>
+<li>On <strong>transaction request acceptance</strong> (<strong>VALID
+&amp; READY</strong> on that channel — document per channel).<br />
+</li>
+<li>Debit amount = <strong>request bytes</strong> right-shifted by
+<strong>credit_divider</strong>, i.e. integer result of <strong>bytes /
+2^credit_divider</strong> (floor division; <em>bytes</em> = transaction
+byte count).<br />
+</li>
+<li><strong>Never</strong> let debit drive balance <strong>below
+zero</strong> (insufficient credit → §6.2.3).<br />
+</li>
+<li><strong>Separate</strong> credit pools for <strong>Read</strong> and
+<strong>Write</strong>.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Credit counter width; ordering when multiple transactions debit in
+one cycle.</li>
+</ul>
+<h4 id="insufficient-credit-delay-must">6.2.3 Insufficient Credit —
+Delay (MUST)</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>If credit is insufficient, <strong>delay acceptance</strong> to
+limit bandwidth.<br />
+</li>
+<li>Apply <strong>independently</strong> to Read and Write paths
+(matching separate credits).</li>
+</ul>
+<hr />
+<h3 id="external-throttle-control">6.3 External Throttle Control</h3>
+<p>Receive throttle intent on <strong>pins</strong> separate from AXI,
+and apply insertion delay on the <strong>request path</strong> using
+<strong>delay registers independent</strong> of §6.2 and §6.4.</p>
+<h4 id="input-semantics-must">6.3.1 Input Semantics (MUST)</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Port <strong><code>request_throttle[1:0]</code></strong>
+(§2.4).<br />
+</li>
+<li><strong><code>request_throttle == 0</code></strong>: No
+<strong>additional</strong> delay from this input (even if feature
+enabled).<br />
+</li>
+<li><strong><code>request_throttle == 1</code>, <code>2</code>,
+<code>3</code></strong>: Each selects a <strong>different delay</strong>
+on the <strong>request acceptance</strong> path. Delays are
+<strong>register-programmable</strong> and <strong>MUST</strong> use
+registers <strong>separate</strong> from AW/AR/W delay and credit
+settings in §6.2 and §6.4 — e.g. <strong>three dedicated
+registers</strong> (or equivalent) for encodings 1–3.<br />
+</li>
+<li><strong>Enable/disable</strong> of this feature
+<strong>MUST</strong> be dynamically programmable via APB. When
+disabled, <code>request_throttle</code> <strong>MAY</strong> be ignored
+(<strong>SHOULD</strong> document).</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Scope of “request signals”: typically AR/AW address-phase
+acceptance; extending to W/R response channels is <strong>MAY</strong> —
+<strong>document</strong> in register map.<br />
+</li>
+<li>Three separate registers vs encoded table for delays 1–3.</li>
+</ul>
+<h4 id="interaction-with-internal-bandwidth-throttling-must-may">6.3.2
+Interaction with Internal Bandwidth Throttling (MUST / MAY)</h4>
+<p><strong>MUST</strong></p>
+<ul>
+<li>When external throttle and §6.2 internal throttling are
+<strong>both</strong> active, combined delay <strong>MUST</strong>
+preserve AXI <strong>protocol</strong> and avoid
+<strong>deadlock</strong>.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Rules for <strong>sum, max, priority</strong> — document in register
+map / implementation.</li>
+</ul>
+<h4 id="scope-may">6.3.3 Scope (MAY)</h4>
+<ul>
+<li>Whether §4 filters also gate external throttle is
+<strong>MAY</strong>; optional register to select scope is
+<strong>MAY</strong>. Implementations that apply external throttle
+<strong>globally</strong> (all transactions) are allowed.</li>
+</ul>
+<hr />
+<h3 id="write-path-wready-delay">6.4 Write Path — WREADY Delay</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Support additional <strong>WREADY</strong> delay as part of
+throttling write data.<br />
+</li>
+<li>Delay magnitude <strong>MUST</strong> be a <strong>separate
+register</strong>.<br />
+</li>
+<li>Interaction with Static/Credit (e.g. WREADY delay only when
+credit-starved) <strong>MUST</strong> be documented in the register map;
+<strong>MUST</strong> comply with AXI <strong>W channel</strong>
+rules.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Priority and combining rules between AW delay and W delay.</li>
+</ul>
+<hr />
+<h3 id="mode-select-and-registers-must">6.5 Mode Select and Registers
+(MUST)</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Select <strong>one</strong> of §6.2.1 or §6.2.2 at run time.<br />
+</li>
+<li>Unused fields <strong>MAY</strong> be ignored when inactive
+(<strong>SHOULD</strong> document).</li>
+</ul>
+<hr />
+<h2 id="address-protection">7. Address Protection</h2>
+<p><strong>MAY</strong> be enabled <strong>independently</strong> of
+bandwidth throttle and latency log.</p>
+<h3 id="protected-regions">7.1 Protected Regions</h3>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Define allowed regions as <strong>(base address, end
+address)</strong> pairs; maximum number of pairs is a <strong>design
+parameter</strong>.<br />
+</li>
+<li>Each pair <strong>MAY</strong> be dynamically
+<strong>valid</strong>-gated.<br />
+</li>
+<li>If a transaction address falls in <strong>no</strong> active pair,
+treat as <strong>protection violation</strong> (compare ARADDR/AWADDR;
+details <strong>MAY</strong>).</li>
+</ul>
+<h3 id="graceful-ignore-behavior">7.2 Graceful Ignore Behavior</h3>
+<p><strong>MUST — Read</strong></p>
+<ul>
+<li>Log <strong>AXID</strong> and <strong>ARADDR</strong> to
+<strong>error log registers</strong>.<br />
+</li>
+<li>Complete handshakes <strong>without breaking AXI timing</strong>
+upstream or downstream.<br />
+</li>
+<li>How illegal accesses are blocked from the downstream slave (e.g. no
+AR downstream + local error response) is <strong>MAY</strong>;
+<strong>no deadlock</strong> and <strong>VALID/READY compliance</strong>
+are <strong>MUST</strong>.</li>
+</ul>
+<p><strong>MUST — Write</strong></p>
+<ul>
+<li>Log sufficient fields (<strong>AWADDR</strong>,
+<strong>AWID</strong> recommended).<br />
+</li>
+<li>On the downstream write path, drive <strong>WSTRB = 0</strong> for
+all bytes (<strong>MAY</strong> align/pack cycles; <strong>MUST</strong>
+keep protocol legal).</li>
+</ul>
+<h3 id="error-log-register-format-must">7.3 Error Log Register Format
+(MUST)</h3>
+<p>Each error source (or shared register) <strong>MUST</strong>
+include:</p>
+<ul>
+<li><strong>valid</strong>: Error pending.<br />
+</li>
+<li><strong>multi</strong>: Encodes:
+<ul>
+<li><code>valid=1</code>, <code>multi=0</code>: <strong>one</strong>
+occurrence.<br />
+</li>
+<li><code>valid=1</code>, <code>multi=N</code> (N&gt;0):
+<strong>N</strong> occurrences (saturate at <strong>multi</strong>
+width; <strong>MAY</strong> add overflow flag — document).</li>
+</ul></li>
+</ul>
+<p><strong>MUST</strong></p>
+<ul>
+<li>Clear error logs via <strong>write-one-to-clear (W1C)</strong>
+through the IP’s <strong>APB CSR slave</strong>.</li>
+</ul>
+<p><strong>MAY</strong></p>
+<ul>
+<li>Separate vs merged registers for Read/Write errors.</li>
+</ul>
+<hr />
+<h2 id="interrupt-and-status-summary">8. Interrupt and Status
+(summary)</h2>
+<ul>
+<li><strong>One</strong> interrupt line.<br />
+</li>
+<li><strong>MAY</strong> mask logging FIFO events, address-protection
+errors, etc., provided software can still distinguish events.</li>
+</ul>
+<hr />
+<h2 id="verification-must">9. Verification (MUST)</h2>
+<ul>
+<li>Sufficient <strong>assertions (SVA, etc.)</strong> for AXI protocol
+and counter boundary conditions in this document.</li>
+</ul>
+<hr />
+<h2 id="structural-overview">10. Structural Overview</h2>
+<h3 id="block-diagram">10.1 Block Diagram</h3>
+<figure>
+<img src="busmon_architecture_overview.png"
+alt="AXI Performance Monitor conceptual blocks" />
+<figcaption aria-hidden="true">AXI Performance Monitor conceptual
+blocks</figcaption>
+</figure>
+<h3 id="filters-features-reference-mermaid">10.2 Filters → Features
+(reference Mermaid)</h3>
+<pre class="mermaid"><code>flowchart LR
+  subgraph filt [Filter stage]
+    A[Address]
+    I[ID mode]
+    D[Direction]
+  end
+  filt --&gt; BW[Bandwidth log]
+  filt --&gt; LAT[Latency incl multi-tx]
+  filt --&gt; TH[Throttle static or credit]
+  XTH[External request_throttle] --&gt; TH
+  filt --&gt; AP[Address protection]</code></pre>
+<hr />
+<h2 id="implementation-deliverables-should">11. Implementation
+Deliverables (SHOULD)</h2>
+<p>The IP provider <strong>SHOULD</strong> supply, together with the
+implementation (directory layout <strong>MAY</strong> vary):</p>
+<ul>
+<li><strong>RTL sources</strong>: Verilog/SystemVerilog suitable for
+synthesis and simulation.<br />
+</li>
+<li><strong>User documentation</strong>: <strong>Control register
+descriptions</strong> (bit meanings, addresses, reset values) consistent
+with this specification, plus clock/reset and parameter
+descriptions.<br />
+</li>
+<li><strong>Verification collateral</strong>: SVA assertions, test plan
+or verification summary.</li>
+</ul>
+<hr />
+<h2 id="appendix-a.-terms-abbreviations-and-axi-channels">Appendix A.
+Terms, Abbreviations, and AXI Channels</h2>
+<p>This appendix <strong>summarizes</strong> concepts for readability;
+protocol details follow <strong>AMBA AXI</strong>.</p>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr>
+<th>Term</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Upstream / Downstream</strong></td>
+<td>Relative to traffic flow through the monitor; connects to upstream
+masters/slaves on one side and downstream on the other (matches “Master
+Up / Master Down” naming in §2).</td>
+</tr>
+<tr>
+<td><strong>AR / AW / R / W / B</strong></td>
+<td>Read address, Write address, Read data, Write data, Write response
+channels.</td>
+</tr>
+<tr>
+<td><strong>Outstanding</strong></td>
+<td>A transaction whose response is not yet complete while subsequent
+address/data phases may be in flight; used in §5.2.2 multi-transaction
+segments.</td>
+</tr>
+<tr>
+<td><strong>APB</strong></td>
+<td>Low-speed configuration bus; this IP assumes a <strong>32-bit APB
+slave</strong> for CSR access.</td>
+</tr>
+<tr>
+<td><strong>CSR</strong></td>
+<td>Control/status registers for configuration, statistics, and error
+logs.</td>
+</tr>
+<tr>
+<td><strong>Even/Odd FIFO</strong></td>
+<td>Two storage banks alternated every N periods so software can read
+one bank while the other continues recording.</td>
+</tr>
+<tr>
+<td><strong>W1C</strong></td>
+<td>Write 1 to Clear; writing 1 to a bit clears a flag.</td>
+</tr>
+<tr>
+<td><strong>SVA</strong></td>
+<td>SystemVerilog Assertions.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Byte counting</strong>: Phrases such as “AxSIZE × burst
+length” refer to <strong>transaction byte volume</strong> derived from
+AXI <strong>AWSIZE/ARSIZE</strong> and <strong>AWLEN/ARLEN</strong> (and
+related rules); the exact formula SHOULD match the AXI standard and be
+stated in the register/user documentation.</p>
+<hr />
+<p><strong>Companion documentation</strong>: Register maps, pin lists,
+and timing are provided separately by the IP provider and MUST satisfy
+the functional requirements of this specification.</p>
+</body>
+</html>

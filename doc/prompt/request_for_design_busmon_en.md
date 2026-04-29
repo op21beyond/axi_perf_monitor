@@ -241,7 +241,7 @@ Selectable **dynamically** by register.
 - Each **credit_period**, add **number_of_credit** (register) to the **accumulated** credit pool.  
 - **Clamp** accumulation to a **maximum** (register or parameter).  
 - On **transaction request acceptance** (**VALID & READY** on that channel — document per channel).  
-- Debit amount = **request bytes** right-shifted by **credit_divider**, i.e. \( \lfloor \text{bytes} / 2^{\text{credit\_divider}} \rfloor \).  
+- Debit amount = **request bytes** right-shifted by **credit_divider**, i.e. integer result of **bytes / 2^credit_divider** (floor division; *bytes* = transaction byte count).  
 - **Never** let debit drive balance **below zero** (insufficient credit → §6.2.3).  
 - **Separate** credit pools for **Read** and **Write**.
 
